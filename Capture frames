@@ -1,0 +1,34 @@
+CONFIDENCE_THRESHOLD = 0.5
+def capture_and_detect():
+    # Capture a single frame from the webcam
+    img = capture_image()
+    frame = np.array(img)
+
+    # Run object detection
+    bboxes, class_ids, scores = detect_objects(frame)
+
+    # Draw bounding boxes and labels on the frame
+    fig, ax = plt.subplots(figsize=(10, 10))
+    ax.imshow(frame)
+
+    height, width, _ = frame.shape
+    for bbox, class_id, score in zip(bboxes, class_ids, scores):
+        if score > CONFIDENCE_THRESHOLD:
+            ymin, xmin, ymax, xmax = bbox
+            left, top, right, bottom = int(xmin * width), int(ymin * height), int(xmax * width), int(ymax * height)
+            
+            # Adjust label index
+            adjusted_class_id = class_id - 1
+            label = f"{labels[adjusted_class_id]}: {score:.2f}" if adjusted_class_id >= 0 else "Unknown"
+
+            # Draw bounding box
+            rect = plt.Rectangle((left, top), right - left, bottom - top, fill=False, color="red", linewidth=2)
+            ax.add_patch(rect)
+            plt.text(left, top - 10, label, color="red", fontsize=12, backgroundcolor="white")
+
+    # Show the image with detections
+    plt.axis("off")
+    plt.show()
+
+# Run the function once
+capture_and_detect()
